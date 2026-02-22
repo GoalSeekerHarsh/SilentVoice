@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SilentVoice: The Subvocal Speech Synthesizer - Interactive Project Blueprint</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: "Clinical Precision" -->
+    <!-- Background: Slate-50 (Light, clean) -->
+    <!-- Primary: Blue-600 (Trust, Tech) -->
+    <!-- Secondary: Teal-500 (Bio/Medical) -->
+    <!-- Text: Slate-800 (Readability) -->
+    <!-- Surface: White (Cards) -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Slate 50 */
+            color: #1e293b; /* Slate 800 */
+        }
+
+        /* Chart Container Styling - MANDATORY */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%; /* Flexible within grid */
+            height: 300px; /* Mobile base */
+            max-height: 400px;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom UI Elements */
+        .nav-link {
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #2563eb; /* Blue 600 */
+            border-bottom-color: #2563eb;
+        }
+
+        .phase-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+        .phase-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            border-color: #2563eb;
+        }
+        .phase-card.active {
+            border-color: #2563eb;
+            background-color: #eff6ff; /* Blue 50 */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Interactive Diagram Styles */
+        .sensor-point {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #2563eb;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #2563eb;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .sensor-point:hover {
+            transform: scale(1.2);
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- NAVIGATION -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-600 tracking-tight">SilentVoice</span>
+                    <span class="ml-2 text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-full font-mono">Ver. 1.0 (Hackathon)</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <button onclick="scrollToSection('mission')" class="nav-link text-sm font-medium text-slate-600">The Mission</button>
+                    <button onclick="scrollToSection('tech')" class="nav-link text-sm font-medium text-slate-600">Tech Stack</button>
+                    <button onclick="scrollToSection('signal')" class="nav-link text-sm font-medium text-slate-600">Signal Lab</button>
+                    <button onclick="scrollToSection('roadmap')" class="nav-link text-sm font-medium text-slate-600">Execution Plan</button>
+                </div>
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-600 hover:text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <button onclick="scrollToSection('mission'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 rounded-md">The Mission</button>
+                <button onclick="scrollToSection('tech'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 rounded-md">Tech Stack</button>
+                <button onclick="scrollToSection('signal'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 rounded-md">Signal Lab</button>
+                <button onclick="scrollToSection('roadmap'); toggleMobileMenu()" class="block w-full text-left px-3 py-2 text-base font-medium text-slate-600 hover:bg-slate-50 rounded-md">Roadmap</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="bg-white pt-16 pb-12 lg:pt-24 lg:pb-16 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
+                Speak Without Sound.
+            </h1>
+            <p class="mt-4 max-w-2xl mx-auto text-xl text-slate-500 font-light">
+                <span class="font-semibold text-blue-600">Vox-Myo:</span> A wearable Subvocal Speech Synthesizer for patients with speech loss. Powered by TinyML and Bio-Signals.
+            </p>
+            <div class="mt-10 flex justify-center gap-4">
+                <button onclick="scrollToSection('mission')" class="px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:text-lg shadow-lg hover:shadow-xl transition-all">
+                    Explore the Project
+                </button>
+                <button onclick="scrollToSection('tech')" class="px-8 py-3 border border-slate-300 text-base font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 md:text-lg transition-all">
+                    View Tech Stack
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        
+        <!-- SECTION 1: THE MISSION (Problem vs Solution) -->
+        <!-- Application Structure Plan: First major section establishes the "Why". Contextualizes the hackathon project not just as code, but as a medical solution. -->
+        <section id="mission" class="py-16 bg-slate-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-slate-900">The Medical Imperative</h2>
+                    <p class="mt-4 text-slate-600 max-w-2xl mx-auto">
+                        Millions of patients annually (ALS, Laryngectomy, ICU Intubation) are fully conscious but locked in silence.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- The Problem -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center text-red-600 text-2xl font-bold">!</div>
+                            <h3 class="ml-4 text-xl font-bold text-slate-900">Current Limitations</h3>
+                        </div>
+                        <ul class="space-y-4 text-slate-600">
+                            <li class="flex items-start">
+                                <span class="mr-2 text-red-500">•</span>
+                                <span><strong>Whiteboards:</strong> Painfully slow, requires hand motor control.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 text-red-500">•</span>
+                                <span><strong>Eye-Tracking:</strong> Extremely expensive ($5,000+), stationary, bulky equipment.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 text-red-500">•</span>
+                                <span><strong>Isolation:</strong> Causes severe anxiety and depression in ICU patients.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- The Solution -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-blue-200 hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4"></div>
+                        <div class="flex items-center mb-4 relative z-10">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 text-2xl font-bold">✓</div>
+                            <h3 class="ml-4 text-xl font-bold text-slate-900">The SilentVoice Solution</h3>
+                        </div>
+                        <ul class="space-y-4 text-slate-600 relative z-10">
+                            <li class="flex items-start">
+                                <span class="mr-2 text-blue-500">•</span>
+                                <span><strong>Subvocal:</strong> Speaks intended words without vocal cord vibration.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 text-blue-500">•</span>
+                                <span><strong>Wearable:</strong> A simple skin patch. Portable and non-invasive.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="mr-2 text-blue-500">•</span>
+                                <span><strong>Affordable:</strong> &lt;$100 prototype cost. Accessible to all hospitals.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Comparison Chart -->
+                <div class="mt-12 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Market Comparison: Cost & Accessibility</h3>
+                    <div class="chart-container mx-auto">
+                        <canvas id="costComparisonChart"></canvas>
+                    </div>
+                    <p class="text-center text-sm text-slate-500 mt-4">
+                        Data projected based on standard component costs vs. medical device market rates.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TECH STACK & ARCHITECTURE -->
+        <!-- Application Structure Plan: Technical deep dive. Shows "How it works" without needing a flowchart image. Uses an interactive list. -->
+        <section id="tech" class="py-16 bg-white border-t border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-slate-900">Engineering The Voice</h2>
+                    <p class="mt-4 text-slate-600">From muscle twitch to synthesized speech: The complete pipeline.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Hardware Column -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-bold text-slate-800 border-b pb-2 border-slate-200">1. The Body (Hardware)</h3>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+                            <h4 class="font-bold text-blue-700">Arduino Nano 33 BLE Sense</h4>
+                            <p class="text-sm text-slate-600 mt-1">The Brain. Runs the Neural Network (TinyML) locally. 64MHz processor.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+                            <h4 class="font-bold text-blue-700">AD8232 Sensor</h4>
+                            <p class="text-sm text-slate-600 mt-1">The Eyes. Detects micro-voltage EMG signals from jaw muscles.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+                            <h4 class="font-bold text-blue-700">3D Printed Headset</h4>
+                            <p class="text-sm text-slate-600 mt-1">The Skeleton. Holds sensors firmly against the Masseter muscle.</p>
+                        </div>
+                    </div>
+
+                    <!-- Process Visualizer (Central) -->
+                    <div class="lg:col-span-1 flex flex-col items-center justify-center space-y-4">
+                        <div class="w-1 bg-slate-200 h-full absolute left-1/2 transform -translate-x-1/2 hidden lg:block z-0"></div>
+                        
+                        <!-- Step 1 -->
+                        <div class="relative z-10 w-full bg-white border-2 border-slate-200 p-4 rounded-lg text-center shadow-sm">
+                            <span class="text-2xl">🧠</span>
+                            <div class="font-bold text-slate-800">Brain Intent</div>
+                            <div class="text-xs text-slate-500">Motor Cortex fires</div>
+                        </div>
+                        
+                        <div class="text-slate-400 text-2xl">↓</div>
+
+                        <!-- Step 2 -->
+                        <div class="relative z-10 w-full bg-white border-2 border-blue-200 p-4 rounded-lg text-center shadow-sm">
+                            <span class="text-2xl">⚡</span>
+                            <div class="font-bold text-slate-800">EMG Signal</div>
+                            <div class="text-xs text-slate-500">Captured by AD8232</div>
+                        </div>
+
+                        <div class="text-slate-400 text-2xl">↓</div>
+
+                        <!-- Step 3 -->
+                        <div class="relative z-10 w-full bg-white border-2 border-indigo-200 p-4 rounded-lg text-center shadow-sm">
+                            <span class="text-2xl">🤖</span>
+                            <div class="font-bold text-slate-800">TinyML Inference</div>
+                            <div class="text-xs text-slate-500">1D-CNN classifies pattern</div>
+                        </div>
+
+                        <div class="text-slate-400 text-2xl">↓</div>
+
+                        <!-- Step 4 -->
+                        <div class="relative z-10 w-full bg-white border-2 border-green-200 p-4 rounded-lg text-center shadow-sm">
+                            <span class="text-2xl">🔊</span>
+                            <div class="font-bold text-slate-800">Speech Output</div>
+                            <div class="text-xs text-slate-500">Bluetooth to App/Speaker</div>
+                        </div>
+                    </div>
+
+                    <!-- Software Column -->
+                    <div class="space-y-6">
+                        <h3 class="text-xl font-bold text-slate-800 border-b pb-2 border-slate-200">2. The Mind (Software)</h3>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                            <h4 class="font-bold text-indigo-700">Edge Impulse</h4>
+                            <p class="text-sm text-slate-600 mt-1">Machine Learning Platform. Used for data collection, DSP design, and training.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                            <h4 class="font-bold text-indigo-700">TensorFlow Lite Micro</h4>
+                            <p class="text-sm text-slate-600 mt-1">The Engine. Runs the trained model efficiently on the Arduino.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 hover:border-indigo-300 transition-colors">
+                            <h4 class="font-bold text-indigo-700">C++ / Arduino IDE</h4>
+                            <p class="text-sm text-slate-600 mt-1">The Logic. Controls sensor reading, filtering, and bluetooth transmission.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SIGNAL LAB (Interactive Simulation) -->
+        <!-- Application Structure Plan: Core educational component. Demonstrates the specific technical challenge (Noise) mentioned in the report. -->
+        <section id="signal" class="py-16 bg-slate-900 text-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Controls -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <h2 class="text-3xl font-bold text-blue-400">Signal Processing Lab</h2>
+                        <p class="text-slate-300 text-sm">
+                            Raw EMG signals are messy. They are corrupted by "Mains Hum" (50Hz electrical noise) and body movement. 
+                            <br><br>
+                            <strong>The Challenge:</strong> Isolate the "Word" from the "Noise".
+                        </p>
+
+                        <div class="bg-slate-800 p-6 rounded-xl border border-slate-700">
+                            <h3 class="text-sm uppercase tracking-wide text-slate-400 font-bold mb-4">DSP Controls</h3>
+                            
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm font-medium">50Hz Mains Hum</span>
+                                <button id="toggleNoiseBtn" class="bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1 rounded text-xs font-mono uppercase hover:bg-red-500/30 transition-colors" onclick="toggleNoise()">Active</button>
+                            </div>
+                            
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm font-medium">Notch Filter (DSP)</span>
+                                <button id="toggleFilterBtn" class="bg-slate-700 text-slate-500 border border-slate-600 px-3 py-1 rounded text-xs font-mono uppercase hover:bg-teal-500/20 hover:text-teal-400 transition-colors" onclick="toggleFilter()">Off</button>
+                            </div>
+
+                            <div class="mt-6 pt-6 border-t border-slate-700">
+                                <div class="text-xs text-slate-400 mb-2">Current Classification:</div>
+                                <div id="classificationResult" class="text-2xl font-mono text-center bg-slate-950 p-4 rounded border border-slate-700 text-slate-500">
+                                    NO SIGNAL
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="lg:col-span-2 bg-slate-950 rounded-xl border border-slate-800 p-4 shadow-2xl relative">
+                        <!-- Oscilloscope Overlay -->
+                        <div class="absolute top-4 right-4 flex space-x-2">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <span class="text-xs font-mono text-green-500">LIVE FEED</span>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <canvas id="signalChart"></canvas>
+                        </div>
+                        <p class="text-center text-xs text-slate-600 mt-2 font-mono">
+                            X: Time (ms) | Y: Amplitude (mV)
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: EXECUTION ROADMAP -->
+        <!-- Application Structure Plan: Project management view. Interactive tabs for the 4 phases outlined in the report. -->
+        <section id="roadmap" class="py-16 bg-slate-50 border-t border-slate-200">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-slate-900">Project Roadmap</h2>
+                    <p class="mt-4 text-slate-600">The 6-week execution plan for the Codecure AI Hackathon.</p>
+                </div>
+
+                <!-- Phase Navigation -->
+                <div class="flex flex-wrap justify-center gap-2 mb-8">
+                    <button onclick="setPhase(1)" id="phaseBtn1" class="phase-btn px-4 py-2 rounded-full text-sm font-medium bg-blue-600 text-white shadow-lg">Phase 1: Hardware</button>
+                    <button onclick="setPhase(2)" id="phaseBtn2" class="phase-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">Phase 2: AI Training</button>
+                    <button onclick="setPhase(3)" id="phaseBtn3" class="phase-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">Phase 3: Integration</button>
+                    <button onclick="setPhase(4)" id="phaseBtn4" class="phase-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">Phase 4: Launch</button>
+                </div>
+
+                <!-- Phase Content Card -->
+                <div id="phaseContent" class="bg-white p-8 rounded-2xl shadow-lg border border-slate-100 min-h-[300px] transition-all duration-300">
+                    <!-- Content injected by JS -->
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 5: FAQ & DETAILS -->
+        <section class="py-16 bg-white border-t border-slate-200">
+            <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-8">Critical Questions</h2>
+                
+                <div class="space-y-4">
+                    <details class="group bg-slate-50 p-4 rounded-lg border border-slate-200 open:bg-white open:shadow-md transition-all">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-slate-800">
+                            <span>Does this "read my mind"?</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                            </span>
+                        </summary>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            No. This is an <strong>EMG (Electromyography)</strong> device, not EEG. It reads electrical signals from your <em>muscles</em> (Masseter & Suprahyoid), not your brain. It only detects words you <em>intentionally</em> try to say.
+                        </p>
+                    </details>
+
+                    <details class="group bg-slate-50 p-4 rounded-lg border border-slate-200 open:bg-white open:shadow-md transition-all">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-slate-800">
+                            <span>Why use Arduino Nano 33 BLE Sense?</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                            </span>
+                        </summary>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            This specific board is the gold standard for TinyML. It has a powerful nRF52840 processor (64MHz) capable of running TensorFlow Lite models in real-time and supports Bluetooth Low Energy for the mobile app connection.
+                        </p>
+                    </details>
+
+                    <details class="group bg-slate-50 p-4 rounded-lg border border-slate-200 open:bg-white open:shadow-md transition-all">
+                        <summary class="flex justify-between items-center font-medium cursor-pointer list-none text-slate-800">
+                            <span>How accurate is the device?</span>
+                            <span class="transition group-open:rotate-180">
+                                <svg fill="none" height="24" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" viewBox="0 0 24 24" width="24"><path d="M6 9l6 6 6-6"></path></svg>
+                            </span>
+                        </summary>
+                        <p class="text-slate-600 mt-4 text-sm leading-relaxed">
+                            With proper electrode placement and training (approx. 50 samples per word), simple vocabularies (e.g., "Water", "Pain", "Yes", "No") can achieve <strong>85-95% accuracy</strong>. Background noise and electrode shift are the main challenges.
+                        </p>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-12 text-center border-t border-slate-800">
+        <p class="mb-2 text-white font-semibold">SilentVoice Project</p>
+        <p class="text-sm">Built for Codecure AI Hackathon 2026</p>
+        <p class="text-xs mt-8 text-slate-600">
+            <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+            Interactive Blueprint Visualization
+        </p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA & STATE ---
+        const projectData = {
+            phases: {
+                1: {
+                    title: "Phase 1: Hardware & Signal",
+                    dates: "Feb 15 - Feb 28",
+                    icon: "🔌",
+                    color: "text-blue-600",
+                    bg: "bg-blue-50",
+                    desc: "Goal: Acquire a clean EMG signal from the jaw.",
+                    tasks: [
+                        "Order Arduino Nano 33 BLE Sense & AD8232 Sensors",
+                        "3D Print Jaw Headset (Fusion 360)",
+                        "Verify signal on Oscilloscope (clean sine wave check)",
+                        "Map face muscles (Masseter/Suprahyoid)"
+                    ]
+                },
+                2: {
+                    title: "Phase 2: Data & Training",
+                    dates: "Mar 01 - Mar 15",
+                    icon: "📊",
+                    color: "text-indigo-600",
+                    bg: "bg-indigo-50",
+                    desc: "Goal: Train the Neural Network to recognize words.",
+                    tasks: [
+                        "Collect 50 samples per word via Edge Impulse",
+                        "Apply Spectral Analysis (FFT) filters",
+                        "Train 1D-CNN Model (>85% Accuracy target)",
+                        "Test model against noise"
+                    ]
+                },
+                3: {
+                    title: "Phase 3: Integration",
+                    dates: "Mar 16 - Mar 25",
+                    icon: "🧩",
+                    color: "text-teal-600",
+                    bg: "bg-teal-50",
+                    desc: "Goal: Deploy the model to the device.",
+                    tasks: [
+                        "Export TFLite model to Arduino C++ library",
+                        "Write firmware main loop (Inference -> Bluetooth)",
+                        "Build basic MIT App Inventor Dashboard",
+                        "Assemble final portable case"
+                    ]
+                },
+                4: {
+                    title: "Phase 4: Launch",
+                    dates: "Mar 26 - Mar 31",
+                    icon: "🚀",
+                    color: "text-green-600",
+                    bg: "bg-green-50",
+                    desc: "Goal: Win the Hackathon.",
+                    tasks: [
+                        "Film 2-minute demo video",
+                        "Finalize GitHub Documentation (README)",
+                        "Submit to Codecure Portal",
+                        "Prepare for live Q&A"
+                    ]
+                }
+            }
+        };
+
+        // --- CHART INITIALIZATION ---
+        
+        // 1. Cost Comparison Bar Chart
+        const ctxCost = document.getElementById('costComparisonChart').getContext('2d');
+        const costChart = new Chart(ctxCost, {
+            type: 'bar',
+            data: {
+                labels: [['SilentVoice', '(Prototype)'], ['Commercial', 'Electrolarynx'], ['Eye-Tracking', 'System']],
+                datasets: [{
+                    label: 'Cost (USD)',
+                    data: [75, 400, 5000],
+                    backgroundColor: ['#2563eb', '#94a3b8', '#ef4444'],
+                    borderRadius: 6,
+                    barThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                // MANDATORY LABEL WRAPPING HANDLING
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) return label.join(' ');
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        title: { display: true, text: 'Estimated Cost ($)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // 2. Signal Lab Line Chart (Dynamic Simulation)
+        const ctxSignal = document.getElementById('signalChart').getContext('2d');
+        
+        // Generate initial data points
+        const initialPoints = Array(100).fill(0);
+        const signalChart = new Chart(ctxSignal, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 100}, (_, i) => i),
+                datasets: [{
+                    label: 'EMG Amplitude',
+                    data: initialPoints,
+                    borderColor: '#22c55e', // Green for signal
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.3, // Smooth curve
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false, // Disable chart.js animation for real-time effect
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    y: {
+                        min: -100,
+                        max: 100,
+                        grid: { color: '#1e293b' },
+                        ticks: { display: false }
+                    },
+                    x: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // --- SIGNAL SIMULATION LOGIC ---
+        let isNoiseActive = true;
+        let isFilterActive = false;
+        let time = 0;
+        let frameId;
+
+        function updateSignal() {
+            // Shift data
+            const data = signalChart.data.datasets[0].data;
+            data.shift();
+
+            // Calculate new value based on physics simulation
+            time += 0.1;
+            
+            // Base Signal (Muscle Twitch every few seconds)
+            let baseSignal = 0;
+            // Simulate a "Word" being spoken (Muscle burst)
+            if (time % 20 > 15 && time % 20 < 18) {
+                // Create a burst packet
+                baseSignal = (Math.random() - 0.5) * 80 * Math.sin(time * 2);
+                document.getElementById('classificationResult').innerText = "DETECTING: 'WATER'";
+                document.getElementById('classificationResult').className = "text-2xl font-mono text-center bg-green-900/20 border border-green-500/50 p-4 rounded text-green-400";
+            } else {
+                document.getElementById('classificationResult').innerText = "LISTENING...";
+                document.getElementById('classificationResult').className = "text-2xl font-mono text-center bg-slate-950 p-4 rounded border border-slate-700 text-slate-500";
+            }
+
+            // Noise Layer (50Hz Hum + Random Static)
+            let noise = 0;
+            if (isNoiseActive) {
+                noise = (Math.sin(time * 10) * 40) + ((Math.random() - 0.5) * 30); // 50Hz hum simulation + static
+            }
+
+            // Filter Logic (Notch Filter Simulation)
+            if (isFilterActive) {
+                noise = noise * 0.1; // Reduce noise by 90%
+            }
+
+            data.push(baseSignal + noise);
+            signalChart.update('none'); // Update without animation
+            frameId = requestAnimationFrame(updateSignal);
+        }
+
+        // Start Simulation
+        updateSignal();
+
+        // Control Functions
+        function toggleNoise() {
+            isNoiseActive = !isNoiseActive;
+            const btn = document.getElementById('toggleNoiseBtn');
+            if (isNoiseActive) {
+                btn.innerText = "ACTIVE";
+                btn.className = "bg-red-500/20 text-red-400 border border-red-500/50 px-3 py-1 rounded text-xs font-mono uppercase hover:bg-red-500/30 transition-colors";
+            } else {
+                btn.innerText = "OFF";
+                btn.className = "bg-slate-700 text-slate-500 border border-slate-600 px-3 py-1 rounded text-xs font-mono uppercase transition-colors";
+            }
+        }
+
+        function toggleFilter() {
+            isFilterActive = !isFilterActive;
+            const btn = document.getElementById('toggleFilterBtn');
+            if (isFilterActive) {
+                btn.innerText = "ON (DSP)";
+                btn.className = "bg-teal-500/20 text-teal-400 border border-teal-500/50 px-3 py-1 rounded text-xs font-mono uppercase hover:bg-teal-500/30 transition-colors shadow-[0_0_10px_rgba(20,184,166,0.3)]";
+            } else {
+                btn.innerText = "OFF";
+                btn.className = "bg-slate-700 text-slate-500 border border-slate-600 px-3 py-1 rounded text-xs font-mono uppercase hover:bg-teal-500/20 hover:text-teal-400 transition-colors";
+            }
+        }
+
+
+        // --- ROADMAP NAVIGATION ---
+        function setPhase(phaseNum) {
+            // Update Buttons
+            document.querySelectorAll('.phase-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+                btn.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            });
+            const activeBtn = document.getElementById(`phaseBtn${phaseNum}`);
+            activeBtn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+
+            // Update Content
+            const data = projectData.phases[phaseNum];
+            const contentDiv = document.getElementById('phaseContent');
+            
+            // Fade out
+            contentDiv.style.opacity = 0;
+            
+            setTimeout(() => {
+                contentDiv.innerHTML = `
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 ${data.bg} ${data.color} rounded-lg flex items-center justify-center text-2xl mr-4">
+                                ${data.icon}
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-900">${data.title}</h3>
+                                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">${data.dates}</p>
+                            </div>
+                        </div>
+                        <span class="hidden md:inline-block px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-bold">Week ${Math.ceil(phaseNum * 1.5)}</span>
+                    </div>
+                    
+                    <p class="text-slate-600 mb-6 italic border-l-4 border-blue-500 pl-4 py-1 bg-slate-50 rounded-r">
+                        ${data.desc}
+                    </p>
+
+                    <h4 class="font-bold text-slate-800 mb-3">Key Deliverables:</h4>
+                    <ul class="space-y-3">
+                        ${data.tasks.map(task => `
+                            <li class="flex items-center text-slate-700 bg-white p-2 rounded border border-slate-100 shadow-sm">
+                                <span class="w-5 h-5 rounded-full border-2 border-slate-300 mr-3 flex-shrink-0"></span>
+                                ${task}
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+                // Fade in
+                contentDiv.style.opacity = 1;
+            }, 300);
+        }
+
+        // Initialize Phase 1
+        setPhase(1);
+
+        // --- NAVIGATION SCROLL ---
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            const offset = 80; // Sticky header height
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = element.getBoundingClientRect().top;
+            const elementPosition = elementRect - bodyRect;
+            const offsetPosition = elementPosition - offset;
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+    </script>
+</body>
+</html>
+
+<!-- Chosen Palette: Clinical Precision (Slate-50 Background, Blue-600 Primary, Slate-800 Text, White Surface) -->
+<!-- Application Structure Plan:
+    1. Hero Section: Immediate hook ("Speak Without Sound") + CTA.
+    2. The Mission (Problem/Solution): Interactive cards comparing current tech vs Vox-Myo. Includes Cost Chart.
+    3. Tech Stack: Broken down into Hardware/Software columns with a central "Process Flow" visual list (non-SVG).
+    4. Signal Lab: A dedicated interactive simulation section. User can "Toggle Noise" and "Toggle Filter" to understand the core technical challenge (DSP) mentioned in the report. This is the "Wow" factor.
+    5. Roadmap: Tabbed interface for the 4 Hackathon Phases to keep the timeline organized and clickable.
+    6. FAQ: Accordion for "Mind Reading" and other common questions.
+-->
+<!-- Visualization & Content Choices:
+    1. Cost Chart (Bar): Goal: Compare. Method: Chart.js Bar. Shows massive price difference.
+    2. Signal Lab (Line): Goal: Inform/Interact. Method: Chart.js Line (Dynamic). Simulates live oscilloscope to explain noise filtering.
+    3. Roadmap (Tabs): Goal: Organize. Method: JS-driven HTML injection. Cleans up the dense text of the 6-week plan.
+    4. Process Flow (Vertical List): Goal: Explain Process. Method: HTML/Tailwind Layout. Simple step-by-step logic.
+    Confirmation: NO SVG used. NO Mermaid JS used.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
